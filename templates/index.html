@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FEDFUNDS Rate Prediction for 2025</title>
+    <style>
+        body {
+            background-color: #d0e6ff;
+            font-family: Arial, sans-serif;
+        }
+        .container {
+            width: 60%;
+            margin: auto;
+            padding-top: 20px;
+        }
+        select, button {
+            padding: 10px;
+            margin: 10px;
+            font-size: 16px;
+        }
+        img {
+            max-width: 100%;
+            height: auto;
+        }
+        .error {
+            color: red;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>FEDFUNDS Rate Prediction for 2025</h1>
+        <form method="POST">
+            <label for="month">Select Month:</label>
+            <select name="month" id="month">
+                <option value="">--Select Month--</option>
+                <option value="01">January</option>
+                <option value="02">February</option>
+                <option value="03">March</option>
+                <option value="04">April</option>
+                <option value="05">May</option>
+                <option value="06">June</option>
+                <option value="07">July</option>
+                <option value="08">August</option>
+                <option value="09">September</option>
+                <option value="10">October</option>
+                <option value="11">November</option>
+                <option value="12">December</option>
+            </select>
+
+            <label for="model_choice">Choose Model:</label>
+            <select name="model_choice" id="model_choice">
+                <option value="ARIMA">ARIMA</option>
+                <option value="Rolling Window">Rolling Window</option>
+            </select>
+
+            <button type="submit">Submit</button>
+        </form>
+
+        {% if plot_url %}
+            <h3>Forecasted FEDFUNDS Rate for 2025:</h3>
+            <img src="{{ plot_url }}" alt="FEDFUNDS Forecast Plot">
+        {% endif %}
+
+        {% if error %}
+            <p class="error">{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>
