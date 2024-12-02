@@ -9,5 +9,6 @@ Unemployment Rate from 1954 to 2024 - https://fred.stlouisfed.org/series/UNRATE
 Moodys Corporate bond yield from 1954 to 2024 - https://fred.stlouisfed.org/series/AAA
 
 ### Model to be used
-ARIMA
-LSTM
+1. ARIMA
+2. GARCH
+3. LSTM
