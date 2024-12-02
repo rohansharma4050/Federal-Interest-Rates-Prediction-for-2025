@@ -20,6 +20,6 @@ result = pd.merge(result,df_ud, on='DATE', how='left')
 result = pd.merge(result,df_bd, on='DATE', how='left')
 result = pd.merge(result,df_ir, on='DATE', how='left')
 
-result.rename(columns={'Inflation': 'Inflation_Rate','AAA': 'Bonds_Yield','UNRATE': 'Unemployment_Rate', 'DATE' : 'Date'}, inplace = True)
+result.rename(columns={'Inflation': 'Inflation Rate','AAA': 'Bonds Yield','UNRATE': 'Unemployment Rate', 'DATE' : 'Date'}, inplace = True)
 result['Date'] = pd.to_datetime(result['Date'])
 result.to_csv('finaldata.csv',index=False)
