@@ -61,6 +61,8 @@ def calculate_accuracy(y_true, y_pred):
     return mae, rmse, mape
 
 # Flask route for the main page
+# Flask route for the main page
+# Flask route for the main page
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -95,6 +97,13 @@ def index():
         # Forecast dates
         forecast_dates = pd.date_range(forecast_start_date, periods=forecast_months, freq='M')
 
+        # Predict for November and December 2024
+        additional_dates = pd.date_range('2024-11-01', periods=2, freq='M')
+        forecast_dates = additional_dates.append(forecast_dates)
+
+        # Update forecast values for Nov and Dec 2024
+        forecast_values = np.append([forecast_values[-1], forecast_values[-1]], forecast_values)
+
         # Generate forecast plot
         plot_url = generate_plot(fedfunds, forecast_values, forecast_dates)
 
@@ -117,6 +126,8 @@ def index():
                                accuracy_metrics=accuracy_metrics, model_choice=model_choice)
 
     return render_template('index.html')
+
+
 
 if __name__ == '__main__':
     app.run(debug=True)
