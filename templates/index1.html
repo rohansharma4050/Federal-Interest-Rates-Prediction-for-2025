@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Castle Forecast</title>
+    <style>
+        /* Base styles */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+
+        /* Header styles */
+        header {
+            background-color: #990000; /* Stevens red */
+            color: white;
+            padding: 15px;
+            text-align: center;
+        }
+
+        /* Form styles */
+        form {
+            background-color: white;
+            margin: 20px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            width: 60%;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        form label {
+            margin: 10px 0;
+            display: block;
+            color: #990000;
+            font-weight: bold;
+        }
+        form input, form select, form button {
+            margin: 10px 0;
+            padding: 10px;
+            width: 100%;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        form button {
+            background-color: #990000;
+            color: white;
+            font-size: 16px;
+            border: none;
+            cursor: pointer;
+        }
+        form button:hover {
+            background-color: #800000;
+        }
+
+        /* Table styles */
+        table {
+            margin: 20px auto;
+            border-collapse: collapse;
+            width: 80%;
+            background-color: white;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        table, th, td {
+            border: 1px solid #ccc;
+        }
+        th {
+            background-color: #990000;
+            color: white;
+            padding: 10px;
+        }
+        td {
+            padding: 10px;
+            text-align: center;
+        }
+
+        /* Plot section */
+        .plot-section {
+            text-align: center;
+            margin: 20px auto;
+        }
+        .plot-section img {
+            max-width: 80%;
+            border: 2px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Error message */
+        .alert {
+            text-align: center;
+            color: #990000;
+            font-weight: bold;
+            margin: 20px;
+        }
+
+        /* Footer styles */
+        footer {
+            background-color: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            margin-top: 20px;
+        }
+
+        /* Button container */
+        .button-container {
+            text-align: center;
+            margin-top: 20px;
+        }
+        .btn {
+            padding: 10px 20px;
+            text-decoration: none;
+            background-color: #990000;
+            color: white;
+            border-radius: 5px;
+            border: none;
+            cursor: pointer;
+        }
+        .btn:hover {
+            background-color: #800000;
+        }
+    </style>
+</head>
+<body>
+    <!-- Header Section -->
+    <header>
+        <h1>Castle Forecast</h1>
+        <p>Your Forecasting Companion for Future Trends</p>
+    </header>
+
+    <!-- Form Section: Data Selection -->
+    <form method="POST">
+        <label for="month">Start Month (1-12):</label>
+        <input type="number" id="month" name="month" min="1" max="12" required>
+        
+        <label for="forecast_months">Number of Months to Forecast:</label>
+        <input type="number" id="forecast_months" name="forecast_months" min="1" required>
+        
+        <label for="model_choice">Model:</label>
+        <select id="model_choice" name="model_choice" required>
+            <option value="VAR">VAR</option>
+            <option value="SARIMAX">SARIMAX</option>
+            <option value="LSTM">LSTM</option>
+
+        </select>
+        
+        <button type="submit">Generate Forecast</button>
+    </form>
+
+    {% if error %}
+        <p class="alert">{{ error }}</p>
+    {% endif %}
+
+    <!-- Evaluation Model: Metrics Table -->
+    {% if evaluation_metrics %}
+        <h2 style="text-align: center;">Model Evaluation Metrics</h2>
+        <table>
+            <tr>
+                <th>Metric</th>
+                <th>Value</th>
+            </tr>
+            {% for metric, value in evaluation_metrics.items() %}
+                <tr>
+                    <td>{{ metric }}</td>
+                    <td>{{ value }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    {% endif %}
+
+
+
+    <!-- Forecast Plot: Graph -->
+    {% if plot_url %}
+        <h3 style="text-align: center;">Model Prediction</h3>
+        <table>
+            <tr>
+                <th>Month</th>
+                <th>Predicted FEDFUNDS Rate</th>
+            </tr>
+            {% for row in forecast_table %}
+                <tr>
+                    <td>{{ row['Month'] }}</td>
+                    <td>{{ "%.2f"|format(row['Predicted FEDFUNDS Rate']) }}</td>
+                </tr>
+            {% endfor %}
+        </table>  
+        <div class="button-container">
+            <!-- Model Evaluation Metrics -->
+         <h3 style="text-align: center;">Model Evaluation Metrics</h3>
+         <table>
+             <tr>
+                 <th>Metric</th>
+                 <th>Value</th>
+             </tr>
+             <tr>
+                 <td>MAE (Mean Absolute Error)</td>
+                 <td>{{ accuracy_metrics['MAE'] }}</td>
+             </tr>
+             <tr>
+                 <td>RMSE (Root Mean Squared Error)</td>
+                 <td>{{ accuracy_metrics['RMSE'] }}</td>
+             </tr>
+ 
+         </table>
+         </div> 
+
+        <div class="plot-section">
+            <h3>Forecasted FEDFUNDS Plot</h3>
+            <img src="{{ plot_url }}" alt="FEDFUNDS Forecast Plot">
+        </div>
+        
+        <h2 style="text-align: center;">Forecast Data</h2>
+    
+    {% endif %}
+
+
+
+    <!-- Footer Section -->
+    <footer>
+        <p>&copy; {{ current_year }} Castle Forecast - Stevens Institute of Technology</p>
+    </footer>
+</body>
+</html>
