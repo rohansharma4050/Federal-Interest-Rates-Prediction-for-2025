@@ -8,36 +8,34 @@ from statsmodels.tsa.api import VAR
 from statsmodels.tsa.statespace.sarimax import SARIMAX
 from sklearn.metrics import mean_absolute_error, mean_squared_error
 import matplotlib
-matplotlib.use('Agg')  # Use non-interactive backend
+matplotlib.use('Agg')  
 
 app = Flask(__name__)
 
 # Load the data from the CSV file
 def load_data():
-    file_path = 'finaldata.csv'  # Change this to your actual CSV file path
+    file_path = 'finaldata.csv'  
     df = pd.read_csv(file_path, parse_dates=['Date'], index_col='Date')
     df.index = pd.to_datetime(df.index)
     return df
 
-# Helper function for VAR forecast
+
 def var_forecast(data, start_date, steps):
     model = VAR(data)
     model_fit = model.fit()
-    lag_order = model_fit.k_ar  # Number of lags in the VAR model
-    forecast_input = data.values[-lag_order:]  # Last `lag_order` rows of the input data
+    lag_order = model_fit.k_ar  
+    forecast_input = data.values[-lag_order:]  
     forecast = model_fit.forecast(y=forecast_input, steps=steps)
     forecast_index = pd.date_range(start_date, periods=steps, freq='M')
     forecast_df = pd.DataFrame(forecast, index=forecast_index, columns=data.columns)
-    return forecast_df['FEDFUNDS'].round(2)  # Round to 2 decimal places
+    return forecast_df['FEDFUNDS'].round(2)  
 
-# Helper function for SARIMAX forecast
 def sarimax_forecast(data, exog_data, start_date, steps):
     model = SARIMAX(data, exog=exog_data, order=(1, 1, 1), seasonal_order=(1, 1, 0, 12))
     model_fit = model.fit()
     forecast = model_fit.forecast(steps=steps, exog=exog_data[-steps:])
-    return forecast.round(2)  # Round to 2 decimal places
+    return forecast.round(2)  
 
-# Helper function to generate plot
 def generate_plot(fedfunds, forecast_values, forecast_dates):
     forecast_series = pd.Series(forecast_values, index=forecast_dates)
     plt.figure(figsize=(10, 6))
@@ -53,16 +51,12 @@ def generate_plot(fedfunds, forecast_values, forecast_dates):
     plot_url = base64.b64encode(img.getvalue()).decode('utf8')
     return f"data:image/png;base64,{plot_url}"
 
-# Helper function to calculate accuracy metrics
 def calculate_accuracy(y_true, y_pred):
     mae = mean_absolute_error(y_true, y_pred)
     rmse = np.sqrt(mean_squared_error(y_true, y_pred))
     mape = np.mean(np.abs((y_true - y_pred) / y_true)) * 100
     return mae, rmse, mape
 
-# Flask route for the main page
-# Flask route for the main page
-# Flask route for the main page
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == 'POST':
@@ -82,7 +76,6 @@ def index():
         exog_data = fedfunds.drop(columns=['FEDFUNDS'])
         forecast_start_date = f'2025-{month.zfill(2)}-01'
 
-        # Perform the forecast
         if model_choice == 'VAR':
             forecast_values = var_forecast(fedfunds, forecast_start_date, forecast_months)
             model_fit = VAR(fedfunds).fit()
@@ -94,27 +87,22 @@ def index():
         else:
             return render_template('index.html', error="Invalid model choice. Please try again.")
 
-        # Forecast dates
         forecast_dates = pd.date_range(forecast_start_date, periods=forecast_months, freq='M')
 
-        # Predict for November and December 2024
         additional_dates = pd.date_range('2024-11-01', periods=2, freq='M')
         forecast_dates = additional_dates.append(forecast_dates)
 
-        # Update forecast values for Nov and Dec 2024
         forecast_values = np.append([forecast_values[-1], forecast_values[-1]], forecast_values)
 
-        # Generate forecast plot
         plot_url = generate_plot(fedfunds, forecast_values, forecast_dates)
 
-        # Prepare forecast data table
         forecast_data = pd.DataFrame({
             'Month': forecast_dates.strftime('%B %Y'),
             'Predicted FEDFUNDS Rate': forecast_values
         })
         forecast_table = forecast_data.to_dict(orient='records')
 
-        # Calculate accuracy metrics
+
         mae, rmse, mape = calculate_accuracy(fedfunds['FEDFUNDS'][fitted_values.index], fitted_values)
         accuracy_metrics = {
             'MAE': round(mae, 2),
